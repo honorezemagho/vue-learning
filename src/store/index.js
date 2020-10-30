@@ -2,11 +2,12 @@ import { createStore } from 'vuex'
 
 export default createStore({
   state: {
-    uiState: 'start',
-    charactersChoices: ['baker', 'mechanic', 'artist'],
-    character: '',
-    questions : [
-      {
+    uiState: "start",
+    score: 0,
+    character: "",
+    characterChoices: ["baker", "mechanic", "artist"],
+    questionIndex: 0,
+    questions: [{
         question: `What's your dog's name?`,
         baker: "Woofgang Puck",
         mechanic: "Alf",
@@ -45,15 +46,30 @@ export default createStore({
     ],
   },
   mutations: {
-    pickCharacter(state, character){
-      state.character = character
+    updateCharacter(state, choice) {
+      state.character = choice
     },
-    updateUIState(state, uistate){
+    updateScore(state, amount) {
+      state.score = amount
+    },
+    updateUIState(state, uistate) {
       state.uiState = uistate
-    }
+    },
+    pickQuestion(state, character) {
+      character === state.character ? (state.score += 13) : (state.score -= 13)
+
+      if (state.questionIndex < state.questions.length - 1) {
+        state.questionIndex++
+      } else {
+        Math.sign(state.score) > 0 ?
+          (state.uiState = "won") :
+          (state.uiState = "lost")
+      }
+    },
+    restartGame(state) {
+      state.uiState = "start"
+      state.score = 0
+      state.questionIndex = 0
+    },
   },
-  actions: {
-  },
-  modules: {
-  }
 })

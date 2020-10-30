@@ -1,14 +1,16 @@
 <template>
-<div id="app" class="container">
+<div id="app" class="contain">
     <GameStateStart v-if="uiState === 'start'">
-        <h1>Which Human do you want to be?</h1>
-        <p v-for="option in charactersChoices" :key="option">
-            <input type="radio" :value="option" id="option" v-model="characterInput">
-            <label :for="option">{{option}}</label>
+        <h2>Which hooman do you want to be?</h2>
+        <p v-for="option in characterChoices" :key="option" class="character-choices">
+            <input v-model="characterinput" :id="option" :value="option" type="radio" />
+            <label :for="option">{{ option }}</label>
+            <br />
         </p>
-        <button @click="pickCharacter"> Pick your character!</button>
+        <button @click="pickCharacter">Pick your character</button>
     </GameStateStart>
-    <section v-else>
+
+    <section v-else-if="uiState === 'characterChosen'">
         <svg viewBox="0 -180 1628 1180" class="main">
             <defs>
                 <clipPath id="bottom-clip">
@@ -18,11 +20,16 @@
                     <rect class="top-clip-path" x="1131.5" y="69.5" width="406" height="473" />
                 </clipPath>
             </defs>
+
             <Friend />
             <Score />
-            <component :is="character"></component>
 
-            <text x="1000" y="930" style="font: normal 45px 'Recursive; text-transform: uppercase;" class="text">{{ character }}</text>
+            <component :is="character" class="character-clip"></component>
+            <Zombie class="zombie-clip" />
+
+            <text x="1000" y="930" style="font: normal 45px 'Recursive; text-transform: uppercase;" class="text">
+                {{ character }}
+            </text>
 
             <path fill="#f0959f" d="M0 842h657v192H0z" />
 
@@ -36,50 +43,89 @@
                 <path class="cls-20" d="M938.9 336C835.1 336 751 412.3 751 506.4s84.1 170.3 187.9 170.3a201.5 201.5 0 00100.5-26.4l87.4 26.4-29.1-79.2c18.4-26.4 29.1-57.6 29.1-91.1 0-94.1-84.1-170.4-187.9-170.4z" transform="translate(17)" />
             </g>
         </svg>
+
+        <div class="friendtalk">
+            <h3>{{ questions[questionIndex].question }}</h3>
+        </div>
+
+        <div class="zombietalk">
+            <p v-for="character in shuffle(characterChoices)" :key="character">
+                <button @click="pickQuestion(character)">
+                    {{ questions[questionIndex][character] }}
+                </button>
+            </p>
+        </div>
     </section>
+
+    <GameStateFinish v-else />
 </div>
 </template>
 
 <script>
-import Artist from '@/components/Artist.vue';
-import Baker from '@/components/Baker.vue';
-import Mechanic from '@/components/Mechanic.vue';
-import Friend from '@/components/Friend.vue';
-import Score from '@/components/Score.vue';
-import Zombie from '@/components/Zombie.vue';
-
 import {
     mapState
-} from 'vuex';
-import GameStateStart from '@/components/GameStateStart.vue';
+} from "vuex"
+import gsap from "gsap"
+
+import Score from "@/components/Score.vue"
+import Baker from "@/components/Baker.vue"
+import Friend from "@/components/Friend.vue"
+import Artist from "@/components/Artist.vue"
+import Zombie from "@/components/Zombie.vue"
+import Mechanic from "@/components/Mechanic.vue"
+import GameStateStart from "@/components/GameStateStart.vue"
+import GameStateFinish from "@/components/GameStateFinish.vue"
 
 export default {
-
     components: {
-        GameStateStart,
-        Artist,
-        Baker,
-        Mechanic,
-        Friend,
         Score,
-        Zombie
+        Baker,
+        Friend,
+        Artist,
+        Zombie,
+        Mechanic,
+        GameStateStart,
+        GameStateFinish,
     },
     data() {
         return {
-            characterInput: ''
-        }
-    },
-    methods: {
-        pickCharacter() {
-            this.$store.commit('pickCharacter', this.characterInput);
-            this.$store.commit('updateUIState', 'characterChosen');
+            characterinput: "",
         }
     },
     computed: {
         ...mapState([
-            "uiState", "questions", "charactersChoices", "character"
-        ])
-    }
+            "uiState",
+            "characterChoices",
+            "character",
+            "questions",
+            "questionIndex",
+            "score",
+        ]),
+    },
+    methods: {
+        pickCharacter() {
+            this.$store.commit("updateCharacter", this.characterinput)
+            this.$store.commit("updateUIState", "characterChosen")
+        },
+        pickQuestion(character) {
+            this.$store.commit("pickQuestion", character)
+        },
+        shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]]
+            }
+            return array
+        },
+    },
+    watch: {
+        score(newValue, oldValue) {
+            console.log(oldValue)
+            gsap.to(".bottom-clip-path, .top-clip-path", {
+                y: -newValue * 6,
+            })
+        },
+    },
 }
 </script>
 
@@ -95,6 +141,7 @@ body {
     position: relative;
     width: 100%;
     height: 100vh;
+    /* if you don't want it to take up the full screen, reduce this number */
     overflow: hidden;
     background-size: cover !important;
     background: url("./assets/background.svg") no-repeat center center scroll,
