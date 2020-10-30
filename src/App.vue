@@ -6,6 +6,7 @@
             <input type="radio" :value="option" id="option" v-model="characterInput">
             <label :for="option">{{option}}</label>
         </p>
+        <button @click="pickCharacter"> Pick your character!</button>
     </GameStateStart>
     <section v-else>
         <svg viewBox="0 -180 1628 1180" class="main">
@@ -50,6 +51,12 @@ export default {
     data() {
         return {
             characterInput: ''
+        }
+    },
+    methods: {
+        pickCharacter() {
+            this.$store.commit('pickCharacter', this.characterInput);
+            this.$store.commit('updateUIState', 'characterChosen');
         }
     },
     computed: {
