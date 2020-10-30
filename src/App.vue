@@ -18,8 +18,11 @@
                     <rect class="top-clip-path" x="1131.5" y="69.5" width="406" height="473" />
                 </clipPath>
             </defs>
+            <Friend />
+            <Score />
+            <component :is="character"></component>
 
-            <text x="1000" y="930" style="font: normal 45px 'Recursive; text-transform: uppercase;" class="text">Character Name</text>
+            <text x="1000" y="930" style="font: normal 45px 'Recursive; text-transform: uppercase;" class="text">{{ character }}</text>
 
             <path fill="#f0959f" d="M0 842h657v192H0z" />
 
@@ -38,6 +41,13 @@
 </template>
 
 <script>
+import Artist from '@/components/Artist.vue';
+import Baker from '@/components/Baker.vue';
+import Mechanic from '@/components/Mechanic.vue';
+import Friend from '@/components/Friend.vue';
+import Score from '@/components/Score.vue';
+import Zombie from '@/components/Zombie.vue';
+
 import {
     mapState
 } from 'vuex';
@@ -46,7 +56,13 @@ import GameStateStart from '@/components/GameStateStart.vue';
 export default {
 
     components: {
-        GameStateStart
+        GameStateStart,
+        Artist,
+        Baker,
+        Mechanic,
+        Friend,
+        Score,
+        Zombie
     },
     data() {
         return {
@@ -67,8 +83,8 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
-#app {
+<style lang="scss">
+body {
     margin: 0;
     padding: 0;
     font-family: "Recursive", Helvetica, Arial, sans-serif;
